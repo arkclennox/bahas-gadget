@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Article {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  content     String    @db.Text
+  excerpt     String?
+  coverImage  String?
+  category    String?
+  tags        String[]  @default([])
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  images      Image[]
+  ctaLinks    Json?
+}
+
+model Gadget {
+  id          String   @id @default(cuid())
+  name        String
+  brand       String
+  slug        String   @unique
+  description String?  @db.Text
+  specs       Json?
+  price       Int?
+  rating      Float?
+  coverImage  String?
+  category    String?
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  images      Image[]
+  ctaLinks    Json?
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  gadget    Gadget?  @relation(fields: [gadgetId], references: [id], onDelete: Cascade)
+  gadgetId  String?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String?
+}
+
+model ApiKey {
+  id        String    @id @default(cuid())
+  key       String    @unique
+  label     String
+  isActive  Boolean   @default(true)
+  lastUsed  DateTime?
+  createdAt DateTime  @default(now())
+}
