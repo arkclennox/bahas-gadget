@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -23,7 +24,7 @@ export default function Navbar() {
     <header className="masthead">
       <div className="masthead-inner">
         <Link href="/" className="wordmark" style={{ textDecoration: 'none' }}>
-          <span>Bahas<span className="slash">/</span>Gatget</span>
+          <span>Bahas<span className="slash">/</span>Gadget</span>
           <span className="sub">Vol.&nbsp;I&nbsp;·&nbsp;№&nbsp;001</span>
         </Link>
 
@@ -40,7 +41,7 @@ export default function Navbar() {
         </nav>
 
         <div className="mast-right">
-          <button className="search-btn">
+          <button className="search-btn" onClick={() => router.push('/cari')}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="7" /><path d="m20 20-3-3" />
             </svg>

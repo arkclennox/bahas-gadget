@@ -1,9 +1,33 @@
 import Link from 'next/link'
 
 const COLS = [
-  { title: 'Seksi', items: [['Reviews', '/reviews'], ['Berita', '/articles'], ['Gadget', '/gadgets']] },
-  { title: 'Tentang', items: [['Redaksi', '#'], ['Metodologi', '#'], ['Cara kami memberi skor', '#'], ['Kontak', '#']] },
-  { title: 'Ikuti', items: [['Newsletter', '#'], ['RSS', '#']] },
+  {
+    title: 'Seksi',
+    items: [
+      ['Reviews', '/reviews'],
+      ['Berita', '/articles'],
+      ['Gadget', '/gadgets'],
+      ['Rankings', '/rankings'],
+    ],
+  },
+  {
+    title: 'Tentang',
+    items: [
+      ['Tentang Kami', '/tentang-kami'],
+      ['Kontak', '/kontak'],
+      ['Kebijakan Privasi', '/kebijakan-privasi'],
+      ['Ketentuan Layanan', '/ketentuan-layanan'],
+    ],
+  },
+  {
+    title: 'Ikuti',
+    items: [
+      ['Newsletter', '/berlangganan'],
+      ['Instagram', 'https://instagram.com'],
+      ['X / Twitter', 'https://x.com'],
+      ['YouTube', 'https://youtube.com'],
+    ],
+  },
 ]
 
 export default function Footer() {
@@ -23,7 +47,13 @@ export default function Footer() {
             <div key={c.title}>
               <div className="col-title">{c.title}</div>
               {c.items.map(([label, href]) => (
-                <Link key={label} href={href}>{label}</Link>
+                <Link
+                  key={label}
+                  href={href}
+                  {...(href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
+                  {label}
+                </Link>
               ))}
             </div>
           ))}

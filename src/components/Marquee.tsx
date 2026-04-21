@@ -5,7 +5,6 @@ const ITEMS = [
   'Harga terbaik',
   'Panduan pembeli',
   'Perbandingan flagship',
-  'AI agent content API aktif',
 ]
 
 export default function Marquee() {

@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 export default function TopRail() {
@@ -20,9 +21,7 @@ export default function TopRail() {
         <span><span className="dot" />Live reviews</span>
         <span className="uppercase">{fmt}</span>
         <span className="spacer" />
-        <a href="#">Berlangganan</a>
-        <span>·</span>
-        <a href="#">Masuk</a>
+        <Link href="/berlangganan">Berlangganan</Link>
       </div>
     </div>
   )
