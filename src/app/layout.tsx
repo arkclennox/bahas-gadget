@@ -34,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="id"
       data-theme="amber"
+      suppressHydrationWarning
       className={`${interTight.variable} ${jetbrainsMono.variable} ${newsreader.variable}`}
       style={{
         '--font-display': 'var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif',
@@ -42,6 +43,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         '--font-mono': 'var(--font-jetbrains-mono), ui-monospace, monospace',
       } as React.CSSProperties}
     >
+      <head>
+        {/* Prevent flash of wrong theme on load */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('bg-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'amber');}catch(e){}})()` }} />
+      </head>
       <body className="min-h-screen">{children}</body>
     </html>
   )

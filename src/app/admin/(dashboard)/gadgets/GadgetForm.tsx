@@ -5,11 +5,85 @@ import Link from 'next/link'
 
 type CTALink = { label: string; url: string }
 type SpecRow = { key: string; value: string }
+type SpecGroup = { group: string; rows: SpecRow[] }
 
 const DEFAULT_CTA: CTALink[] = [
   { label: 'Shopee', url: '' },
   { label: 'Tiktok', url: '' },
   { label: 'Blibli', url: '' },
+]
+
+const SMARTPHONE_TEMPLATE: SpecGroup[] = [
+  { group: 'Jaringan', rows: [
+    { key: 'Teknologi', value: '' },
+    { key: 'Band 2G', value: '' },
+    { key: 'Band 3G', value: '' },
+    { key: 'Band 4G LTE', value: '' },
+    { key: 'Band 5G', value: '' },
+  ]},
+  { group: 'Identitas', rows: [
+    { key: 'Tahun Rilis', value: '' },
+    { key: 'Status', value: '' },
+    { key: 'Dimensi', value: '' },
+    { key: 'Berat', value: '' },
+    { key: 'Bahan', value: '' },
+    { key: 'SIM', value: '' },
+  ]},
+  { group: 'Layar', rows: [
+    { key: 'Tipe', value: '' },
+    { key: 'Ukuran', value: '' },
+    { key: 'Resolusi', value: '' },
+    { key: 'Refresh Rate', value: '' },
+    { key: 'Kecerahan', value: '' },
+    { key: 'Pelindung Layar', value: '' },
+  ]},
+  { group: 'Platform', rows: [
+    { key: 'OS', value: '' },
+    { key: 'Chipset', value: '' },
+    { key: 'CPU', value: '' },
+    { key: 'GPU', value: '' },
+  ]},
+  { group: 'Memori', rows: [
+    { key: 'Slot Kartu', value: '' },
+    { key: 'RAM', value: '' },
+    { key: 'Penyimpanan Internal', value: '' },
+  ]},
+  { group: 'Kamera Utama', rows: [
+    { key: 'Konfigurasi', value: '' },
+    { key: 'Fitur', value: '' },
+    { key: 'Video', value: '' },
+  ]},
+  { group: 'Kamera Depan', rows: [
+    { key: 'Resolusi', value: '' },
+    { key: 'Fitur', value: '' },
+    { key: 'Video', value: '' },
+  ]},
+  { group: 'Suara', rows: [
+    { key: 'Speaker', value: '' },
+    { key: 'Jack 3.5mm', value: '' },
+  ]},
+  { group: 'Konektivitas', rows: [
+    { key: 'WLAN', value: '' },
+    { key: 'Bluetooth', value: '' },
+    { key: 'GPS', value: '' },
+    { key: 'NFC', value: '' },
+    { key: 'USB', value: '' },
+    { key: 'Inframerah', value: '' },
+  ]},
+  { group: 'Sensor', rows: [
+    { key: 'Sensor', value: '' },
+  ]},
+  { group: 'Baterai', rows: [
+    { key: 'Tipe', value: '' },
+    { key: 'Kapasitas', value: '' },
+    { key: 'Pengisian Kabel', value: '' },
+    { key: 'Pengisian Nirkabel', value: '' },
+  ]},
+  { group: 'Lainnya', rows: [
+    { key: 'Warna', value: '' },
+    { key: 'Model', value: '' },
+    { key: 'SAR', value: '' },
+  ]},
 ]
 
 type InitialData = {
@@ -41,15 +115,30 @@ const labelStyle: React.CSSProperties = {
 
 const fieldStyle: React.CSSProperties = { marginBottom: 20 }
 
-function specsToRows(specs: unknown): SpecRow[] {
+function specsToGroups(specs: unknown): SpecGroup[] {
   if (!specs || typeof specs !== 'object' || Array.isArray(specs)) return []
-  return Object.entries(specs as Record<string, string>).map(([key, value]) => ({ key, value }))
+  const obj = specs as Record<string, unknown>
+  const firstVal = Object.values(obj)[0]
+  if (firstVal && typeof firstVal === 'object' && !Array.isArray(firstVal)) {
+    // grouped format
+    return Object.entries(obj as Record<string, Record<string, string>>).map(([group, rows]) => ({
+      group,
+      rows: Object.entries(rows).map(([key, value]) => ({ key, value })),
+    }))
+  }
+  // flat format — wrap in single group
+  return [{ group: 'Spesifikasi', rows: Object.entries(obj as Record<string, string>).map(([key, value]) => ({ key, value })) }]
 }
 
-function rowsToSpecs(rows: SpecRow[]): Record<string, string> {
-  const result: Record<string, string> = {}
-  for (const row of rows) {
-    if (row.key.trim()) result[row.key.trim()] = row.value
+function groupsToSpecs(groups: SpecGroup[]): Record<string, Record<string, string>> {
+  const result: Record<string, Record<string, string>> = {}
+  for (const g of groups) {
+    if (!g.group.trim()) continue
+    const rows: Record<string, string> = {}
+    for (const row of g.rows) {
+      if (row.key.trim()) rows[row.key.trim()] = row.value
+    }
+    if (Object.keys(rows).length > 0) result[g.group.trim()] = rows
   }
   return result
 }
@@ -66,7 +155,7 @@ export default function GadgetForm({ initialData }: { initialData?: InitialData 
   const [rating, setRating] = useState(initialData?.rating?.toString() ?? '')
   const [coverImage, setCoverImage] = useState(initialData?.coverImage ?? '')
   const [published, setPublished] = useState(initialData?.published ?? false)
-  const [specs, setSpecs] = useState<SpecRow[]>(specsToRows(initialData?.specs))
+  const [specGroups, setSpecGroups] = useState<SpecGroup[]>(specsToGroups(initialData?.specs))
 
   const rawCTA = initialData?.ctaLinks
   const [ctaLinks, setCtaLinks] = useState<CTALink[]>(
@@ -80,18 +169,39 @@ export default function GadgetForm({ initialData }: { initialData?: InitialData 
     setCtaLinks(links => links.map((l, i) => i === index ? { ...l, [field]: value } : l))
   }
 
-  const updateSpec = (index: number, field: 'key' | 'value', value: string) => {
-    setSpecs(rows => rows.map((r, i) => i === index ? { ...r, [field]: value } : r))
+  const updateGroupName = (gi: number, value: string) => {
+    setSpecGroups(gs => gs.map((g, i) => i === gi ? { ...g, group: value } : g))
   }
 
-  const addSpec = () => setSpecs(rows => [...rows, { key: '', value: '' }])
+  const updateSpecRow = (gi: number, ri: number, field: 'key' | 'value', value: string) => {
+    setSpecGroups(gs => gs.map((g, i) => i === gi
+      ? { ...g, rows: g.rows.map((r, j) => j === ri ? { ...r, [field]: value } : r) }
+      : g
+    ))
+  }
 
-  const removeSpec = (index: number) => setSpecs(rows => rows.filter((_, i) => i !== index))
+  const addRowToGroup = (gi: number) => {
+    setSpecGroups(gs => gs.map((g, i) => i === gi ? { ...g, rows: [...g.rows, { key: '', value: '' }] } : g))
+  }
+
+  const removeRow = (gi: number, ri: number) => {
+    setSpecGroups(gs => gs.map((g, i) => i === gi ? { ...g, rows: g.rows.filter((_, j) => j !== ri) } : g))
+  }
+
+  const addGroup = () => {
+    setSpecGroups(gs => [...gs, { group: '', rows: [{ key: '', value: '' }] }])
+  }
+
+  const removeGroup = (gi: number) => {
+    setSpecGroups(gs => gs.filter((_, i) => i !== gi))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    const specsPayload = specGroups.length > 0 ? groupsToSpecs(specGroups) : null
 
     const payload = {
       name, brand,
@@ -101,7 +211,7 @@ export default function GadgetForm({ initialData }: { initialData?: InitialData 
       rating: rating ? parseFloat(rating) : null,
       coverImage: coverImage || null,
       published,
-      specs: specs.length > 0 ? rowsToSpecs(specs) : null,
+      specs: specsPayload && Object.keys(specsPayload).length > 0 ? specsPayload : null,
       ctaLinks,
     }
 
@@ -195,35 +305,73 @@ export default function GadgetForm({ initialData }: { initialData?: InitialData 
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <label style={{ ...labelStyle, marginBottom: 0 }}>Spesifikasi</label>
-          <button type="button" onClick={addSpec} className="btn" style={{ fontSize: 11, padding: '5px 10px' }}>
-            + Tambah Baris
-          </button>
-        </div>
-        {specs.length === 0 && (
-          <div style={{ padding: '16px 0', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-mute)', textAlign: 'center', border: '1px dashed var(--rule)' }}>
-            Belum ada spesifikasi. Klik "+ Tambah Baris" untuk menambah.
-          </div>
-        )}
-        {specs.map((row, i) => (
-          <div key={i} style={{ display: 'grid', gridTemplateColumns: '220px 1fr 32px', gap: 8, marginBottom: 8 }}>
-            <input
-              type="text" value={row.key} placeholder="Layar"
-              onChange={e => updateSpec(i, 'key', e.target.value)}
-              style={{ ...inputStyle, fontSize: 13 }}
-            />
-            <input
-              type="text" value={row.value} placeholder="6.9 inci QHD+ AMOLED, 120Hz"
-              onChange={e => updateSpec(i, 'value', e.target.value)}
-              style={{ ...inputStyle, fontSize: 13 }}
-            />
+          <div style={{ display: 'flex', gap: 8 }}>
             <button
               type="button"
-              onClick={() => removeSpec(i)}
-              style={{ background: 'var(--paper-2)', border: '1px solid var(--rule)', color: 'var(--bad)', cursor: 'pointer', fontSize: 14 }}
-              title="Hapus baris"
+              onClick={() => setSpecGroups(SMARTPHONE_TEMPLATE.map(g => ({ ...g, rows: g.rows.map(r => ({ ...r })) })))}
+              className="btn btn-accent"
+              style={{ fontSize: 11, padding: '5px 10px' }}
             >
-              ×
+              Template Smartphone
             </button>
+            <button type="button" onClick={addGroup} className="btn" style={{ fontSize: 11, padding: '5px 10px' }}>
+              + Grup Baru
+            </button>
+          </div>
+        </div>
+
+        {specGroups.length === 0 && (
+          <div style={{ padding: '20px', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-mute)', textAlign: 'center', border: '1px dashed var(--rule)' }}>
+            Klik "Template Smartphone" untuk mengisi otomatis, atau "+ Grup Baru" untuk mulai manual.
+          </div>
+        )}
+
+        {specGroups.map((group, gi) => (
+          <div key={gi} style={{ border: '1px solid var(--rule)', marginBottom: 16, background: 'var(--paper-2)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderBottom: '1px solid var(--rule)', background: 'var(--paper-3)' }}>
+              <input
+                type="text"
+                value={group.group}
+                onChange={e => updateGroupName(gi, e.target.value)}
+                placeholder="Nama Grup (mis. Layar)"
+                style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, color: 'var(--accent)', background: 'transparent', border: 'none', padding: 0, flex: 1 }}
+              />
+              <button
+                type="button"
+                onClick={() => removeGroup(gi)}
+                style={{ background: 'none', border: 'none', color: 'var(--bad)', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
+                title="Hapus grup"
+              >×</button>
+            </div>
+            <div style={{ padding: '12px' }}>
+              {group.rows.map((row, ri) => (
+                <div key={ri} style={{ display: 'grid', gridTemplateColumns: '200px 1fr 28px', gap: 6, marginBottom: 6 }}>
+                  <input
+                    type="text" value={row.key} placeholder="Nama spesifikasi"
+                    onChange={e => updateSpecRow(gi, ri, 'key', e.target.value)}
+                    style={{ ...inputStyle, fontSize: 13 }}
+                  />
+                  <input
+                    type="text" value={row.value} placeholder="Nilai"
+                    onChange={e => updateSpecRow(gi, ri, 'value', e.target.value)}
+                    style={{ ...inputStyle, fontSize: 13 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeRow(gi, ri)}
+                    style={{ background: 'var(--paper-2)', border: '1px solid var(--rule)', color: 'var(--bad)', cursor: 'pointer', fontSize: 14 }}
+                    title="Hapus baris"
+                  >×</button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addRowToGroup(gi)}
+                style={{ fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-mute)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', marginTop: 2 }}
+              >
+                + tambah baris
+              </button>
+            </div>
           </div>
         ))}
       </div>

@@ -55,7 +55,10 @@ export default async function GadgetDetailPage({ params }: Props) {
     take: 3,
   })
 
-  const specs = gadget.specs as Record<string, string> | null
+  type FlatSpecs = Record<string, string>
+  type GroupedSpecs = Record<string, Record<string, string>>
+  const rawSpecs = gadget.specs as FlatSpecs | GroupedSpecs | null
+  const isGrouped = rawSpecs && typeof Object.values(rawSpecs)[0] === 'object'
 
   return (
     <>
@@ -117,16 +120,35 @@ export default async function GadgetDetailPage({ params }: Props) {
       </div>
 
       {/* Specs */}
-      {specs && Object.keys(specs).length > 0 && (
+      {rawSpecs && Object.keys(rawSpecs).length > 0 && (
         <div className="container" style={{ paddingTop: 40, paddingBottom: 40 }}>
           <div className="section-bar"><h2>Spesifikasi Lengkap</h2></div>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, marginTop: 20 }}>
-            {Object.entries(specs).map(([k, v]) => (
-              <div key={k} style={{ display: 'grid', gridTemplateColumns: '200px 1fr', padding: '12px 0', borderBottom: '1px solid var(--rule)' }}>
-                <span className="mono xsmall uppercase mute">{k}</span>
-                <span>{v}</span>
-              </div>
-            ))}
+            {isGrouped
+              ? Object.entries(rawSpecs as GroupedSpecs).map(([group, rows]) => (
+                  <div key={group} style={{ marginBottom: 32 }}>
+                    <div style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase',
+                      letterSpacing: '0.12em', color: 'var(--accent)', fontWeight: 600,
+                      padding: '8px 0', borderBottom: '2px solid var(--accent)', marginBottom: 4,
+                    }}>
+                      {group}
+                    </div>
+                    {Object.entries(rows).map(([k, v]) => (
+                      <div key={k} style={{ display: 'grid', gridTemplateColumns: '220px 1fr', padding: '10px 0', borderBottom: '1px solid var(--rule)' }}>
+                        <span className="mono xsmall mute" style={{ paddingRight: 16 }}>{k}</span>
+                        <span style={{ lineHeight: 1.5 }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))
+              : Object.entries(rawSpecs as FlatSpecs).map(([k, v]) => (
+                  <div key={k} style={{ display: 'grid', gridTemplateColumns: '220px 1fr', padding: '10px 0', borderBottom: '1px solid var(--rule)' }}>
+                    <span className="mono xsmall mute" style={{ paddingRight: 16 }}>{k}</span>
+                    <span style={{ lineHeight: 1.5 }}>{v}</span>
+                  </div>
+                ))
+            }
           </div>
         </div>
       )}

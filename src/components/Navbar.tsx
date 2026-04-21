@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import ThemeToggle from '@/components/ThemeToggle'
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -48,6 +49,7 @@ export default function Navbar() {
             Cari gadget, review
             <span className="kbd">⌘K</span>
           </button>
+          <ThemeToggle />
         </div>
       </div>
     </header>
