@@ -88,8 +88,22 @@ export default async function RankingsPage({
               <p className="dek">Belum ada gadget di kategori ini.</p>
             ) : (
               gadgets.map((gadget, i) => {
-                const specs = gadget.specs as Record<string, string> | null
-                const chipKeys = specs ? Object.keys(specs).slice(0, 4) : []
+                // extract up to 4 chip values from flat or grouped specs
+                const rawSpecs = gadget.specs as Record<string, unknown> | null
+                const chips: string[] = []
+                if (rawSpecs) {
+                  for (const val of Object.values(rawSpecs)) {
+                    if (chips.length >= 4) break
+                    if (typeof val === 'string') {
+                      chips.push(val)
+                    } else if (val && typeof val === 'object') {
+                      for (const v of Object.values(val as Record<string, string>)) {
+                        if (chips.length >= 4) break
+                        if (typeof v === 'string') chips.push(v)
+                      }
+                    }
+                  }
+                }
 
                 return (
                   <div
@@ -133,10 +147,10 @@ export default async function RankingsPage({
                       {gadget.description && (
                         <p className="dek" style={{ fontSize: 17, margin: 0 }}>{gadget.description}</p>
                       )}
-                      {chipKeys.length > 0 && (
+                      {chips.length > 0 && (
                         <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                          {chipKeys.map(k => (
-                            <span key={k} className="chip">{specs![k]}</span>
+                          {chips.map((c, idx) => (
+                            <span key={idx} className="chip">{c}</span>
                           ))}
                         </div>
                       )}
