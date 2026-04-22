@@ -25,8 +25,25 @@ const newsreader = Newsreader({
 })
 
 export const metadata: Metadata = {
-  title: 'Bahas Gadget — Independent smartphone journalism',
-  description: 'Independent reviews, news, and rankings for smartphones and gadgets. No affiliate bias. Review units returned.',
+  metadataBase: new URL('https://bahasgadget.com'),
+  title: {
+    default: 'Bahas Gadget — Jurnalisme Smartphone Independen',
+    template: '%s — Bahas Gadget',
+  },
+  description: 'Review mendalam, berita, dan ranking smartphone & gadget. Tanpa bias afiliasi. Unit review dikembalikan.',
+  openGraph: {
+    siteName: 'Bahas Gadget',
+    locale: 'id_ID',
+    type: 'website',
+    url: 'https://bahasgadget.com',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@bahasgadget',
+  },
+  alternates: {
+    canonical: 'https://bahasgadget.com',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -18,8 +18,8 @@ API key disimpan di database dan bisa dinonaktifkan kapan saja. Jika key tidak v
 
 ## Base URL
 
-- **Development:** `http://localhost:3000` (jalankan `npm run dev`, port bisa berbeda jika 3000 sudah terpakai)
-- **Production:** sesuaikan dengan domain deploy (Vercel, dsb.)
+- **Production:** `https://bahasgadget.com`
+- **Development:** `http://localhost:3000` (jalankan `npm run dev`)
 
 ---
 
@@ -164,11 +164,13 @@ Content-Type: application/json
 | `description` | string  | Tidak | Deskripsi singkat                                              |
 | `category`    | string  | Tidak | Contoh: `"smartphone"`, `"laptop"`, `"tablet"`, `"audio"`      |
 | `rating`      | number  | Tidak | Skala **0–10**. Contoh: `9.2`                                  |
-| `specs`       | object  | Tidak | Key-value pasangan spesifikasi (lihat contoh)                  |
+| `specs`       | object  | Tidak | Spesifikasi berkelompok (lihat format di bawah)                |
 | `coverImage`  | string  | Tidak | URL gambar sampul utama                                        |
 | `published`   | boolean | Tidak | Default `false`                                                |
 
-**Contoh request:**
+**Format `specs` — berkelompok (GSMArena-style):**
+
+`specs` adalah objek dengan key = nama grup, value = objek key-value spesifikasi dalam grup tersebut.
 
 ```json
 {
@@ -179,17 +181,74 @@ Content-Type: application/json
   "rating": 9.2,
   "coverImage": "https://images.unsplash.com/photo-1581287053822-fd7bf4f4bfec?w=800&q=80",
   "specs": {
-    "Layar": "6.9 inci QHD+ AMOLED, 120Hz",
-    "Chipset": "Snapdragon 8 Elite",
-    "RAM": "12GB",
-    "Storage": "256GB / 512GB / 1TB",
-    "Kamera Utama": "200MP + 50MP UW + 10MP 3x + 50MP 5x",
-    "Baterai": "5000 mAh",
-    "Pengisian": "45W kabel, 15W wireless",
-    "Bobot": "218 g",
-    "OS": "Android 15 + One UI 7",
-    "Dimensi": "162.8 × 79.0 × 8.9 mm",
-    "Ketahanan": "IP68"
+    "Jaringan": {
+      "Teknologi": "GSM / HSPA / LTE / 5G",
+      "Band 2G": "GSM 850 / 900 / 1800 / 1900",
+      "Band 4G LTE": "Band 1, 2, 3, 4, 5, 7, 8, 12, 17, 20, 25, 26, 28, 38, 39, 40, 41, 66",
+      "Band 5G": "Sub6 GHz"
+    },
+    "Identitas": {
+      "Tahun Rilis": "2025, Januari",
+      "Status": "Tersedia",
+      "Dimensi": "162.8 × 79.0 × 8.9 mm",
+      "Berat": "218 g",
+      "Bahan": "Titanium frame, Gorilla Glass Armor 2 back",
+      "SIM": "Nano-SIM + eSIM"
+    },
+    "Layar": {
+      "Tipe": "Dynamic AMOLED 2X, 120Hz, HDR10+, 2600 nits",
+      "Ukuran": "6.9 inci",
+      "Resolusi": "1440 × 3088 piksel (~489 ppi)",
+      "Refresh Rate": "1–120Hz adaptif",
+      "Pelindung Layar": "Corning Gorilla Glass Armor 2"
+    },
+    "Platform": {
+      "OS": "Android 15, One UI 7",
+      "Chipset": "Qualcomm SM8750-AB Snapdragon 8 Elite (3 nm)",
+      "CPU": "Octa-core (2×4.47 GHz Oryon V2 Phoenix L + 6×3.53 GHz Oryon V2 Phoenix M)",
+      "GPU": "Adreno 830"
+    },
+    "Memori": {
+      "Slot Kartu": "Tidak ada",
+      "RAM": "12GB / 16GB",
+      "Penyimpanan Internal": "256GB / 512GB / 1TB (UFS 4.0)"
+    },
+    "Kamera Utama": {
+      "Konfigurasi": "200MP (wide, f/1.7) + 50MP (ultrawide, f/1.9) + 10MP (3x telephoto) + 50MP (5x telephoto)",
+      "Fitur": "OIS, Laser AF, LED flash",
+      "Video": "8K@30fps, 4K@120fps, slo-mo 240fps"
+    },
+    "Kamera Depan": {
+      "Resolusi": "12MP (f/2.2, 80°)",
+      "Fitur": "Auto HDR, video stabilization",
+      "Video": "4K@60fps"
+    },
+    "Suara": {
+      "Speaker": "Stereo, tuned by AKG",
+      "Jack 3.5mm": "Tidak"
+    },
+    "Konektivitas": {
+      "WLAN": "Wi-Fi 802.11 a/b/g/n/ac/6e/7",
+      "Bluetooth": "5.4, A2DP, LE, aptX HD",
+      "GPS": "GPS, GLONASS, BDS, Galileo",
+      "NFC": "Ya",
+      "USB": "USB Type-C 3.2 Gen 2, DisplayPort 1.2, OTG",
+      "Inframerah": "Ya"
+    },
+    "Sensor": {
+      "Sensor": "Fingerprint (under display, ultrasonic), accelerometer, gyro, proximity, barometer, compass"
+    },
+    "Baterai": {
+      "Tipe": "Li-Ion",
+      "Kapasitas": "5000 mAh",
+      "Pengisian Kabel": "45W, 65% dalam 30 menit",
+      "Pengisian Nirkabel": "15W wireless, 4.5W reverse wireless"
+    },
+    "Lainnya": {
+      "Warna": "Titanium Whitesilver, Titanium Black, Titanium Silverblue, Titanium Jade",
+      "Model": "SM-S938B, SM-S938B/DS",
+      "SAR": "1.14 W/kg (kepala), 0.88 W/kg (badan)"
+    }
   },
   "published": true
 }
@@ -315,7 +374,7 @@ x-api-key: <API_KEY>
 1. **Selalu set `"published": true`** jika konten sudah siap tayang. Default-nya `false` (draft).
 2. **`rating` skala 0–10**, bukan 0–5. Nilai seperti `8.5`, `9.2`, `7.8` adalah valid.
 3. **`content` artikel mendukung Markdown** — gunakan `##` untuk heading, `**bold**`, `> blockquote`, bullet list, dsb.
-4. **`specs` adalah objek bebas** — key adalah nama spesifikasi, value adalah string nilainya. Tidak ada schema kaku.
+4. **`specs` berkelompok** — format `{ "Grup": { "Key": "Value" } }`. Grup ditampilkan sebagai header berwarna oranye di halaman gadget. Gunakan 12 grup standar: Jaringan, Identitas, Layar, Platform, Memori, Kamera Utama, Kamera Depan, Suara, Konektivitas, Sensor, Baterai, Lainnya.
 5. **Slug di-generate otomatis** dari title/nama jika tidak diisi.
 6. **`id` dari response POST** dibutuhkan untuk menambah gambar, PUT, dan DELETE. Simpan setelah POST.
 7. **`coverImage`** bisa di-set langsung saat POST/PUT, atau otomatis terisi dari gambar pertama yang di-POST ke endpoint `/images`.
