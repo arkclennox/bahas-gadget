@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.gsmarena.com',
       },
+      {
+        protocol: 'https',
+        hostname: '*.phonebunch.com',
+      },
     ],
   },
 }
